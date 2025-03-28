@@ -1,5 +1,6 @@
 ---
 title: "Data Types - Factors"
+author: "Aida Aquino Arias"
 format: html
 embed-resources: true
 ---
