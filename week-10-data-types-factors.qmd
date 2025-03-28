@@ -9,6 +9,7 @@ embed-resources: true
 library(tidyverse)
 library(babynames) #may need to install
 library(nycflights13)
+## ran the given code to load the packages
 ```
 
 # Logicals
@@ -25,11 +26,13 @@ Finally, create a summary table that shows:
 2. What proportion of flights were delayed
 
 ```{r}
+#| label: delayed-flights
 flights |>
-  ___________(delayed = arr_delay > 0) |>
-  ___________(delayed) |>
-  ___________(total = _____(delayed), 
-              prop = _____(delayed))
+  mutate(delayed = arr_delay > 0) |>
+  drop_na(delayed) |>
+  summarise(total = sum(delayed), 
+              prop = mean(delayed))
+# portioned out which flights were delayed, filled in the blanks
 ```
 
 
@@ -43,14 +46,29 @@ Repeat the demonstration, some of whose code is below, to make a sensible graph 
 *(Hint: Be sure to remove each `_` before running the code)*
 
 ```{r}
+#| label: tvhours-and-marital-status
 gss_cat |>
-  drop_na(________) |>
-  group_by(________) |>
-  summarise(_________________) |>
+  drop_na(tvhours) |>
+  group_by(marital) |>
+  summarise(tv_avg = mean(tvhours)) |>
   ggplot() +
-    geom_point(mapping = aes(x = _______, 
-                             y = _________________________))
+    geom_point(mapping = aes(x = tv_avg, 
+                             y = fct_reorder(marital, tv_avg)))
+#filled in the blanks, made a grph to visualize the correlation between relationship/marital status and avgerage tv screen time
 ```
+
+```{r}
+#| label: visual-graph
+gss_cat |>
+  drop_na(tvhours) |>
+  ggplot(mapping = aes(x = tvhours,
+                       y = fct_reorder(marital, tvhours, .fun = median))) +
+  labs(x = "TV hours",
+       y = "Marital Status") +
+  geom_violin()
+#followed along and created a different visual graph of the correlation in relationship status and tv screen time, added lables
+```
+
 
 ## Your Turn 3
 
@@ -58,7 +76,12 @@ Do you think liberals or conservatives watch more TV?
 Compute average tv hours by party ID an then plot the results.
 
 ```{r}
-
+#| label: politics-and-tvhours
+gss_cat |>
+  drop_na(tvhours) |>
+  group_by(partyid) |>
+  summarize(tv_avg = mean(tvhours))
+# found the average time a political party spent watching tv
 ```
 
 
@@ -66,40 +89,47 @@ Compute average tv hours by party ID an then plot the results.
 ## Additional Modification
 
 ```{r}
+#| label: modification
 gss_cat |>
-  _______(tvhours) |>
-  _______(partyid = fct_recode(partyid,
+  drop_na(tvhours) |>
+  mutate(partyid = fct_recode(partyid,
                               "Republican, strong" = "Strong republican",
                               "Republican, weak" = "Not str republican",
                               "Independent, near rep" = "Ind,near rep",
                               "Independent, near dem" = "Ind,near dem",
                               "Democrat, weak" = "Not str democrat",
                               "Democrat, strong" = "Strong democrat")) |> 
-  _______(partyid) |>
-  _______(tv_avg = mean(tvhours)) |>
+  group_by(partyid) |>
+  summarise(tv_avg = mean(tvhours)) |>
   ggplot(aes(x = tv_avg, 
              y = fct_reorder(partyid, tv_avg))) +
   geom_point() + 
-  labs(y = "partyid")
+  labs(x = "Average Number of Hours of Tv Reported Watched",
+       y = "Political Party ID")
+# filled in the blanks, 
 ```
 
 ```{r}
 #levels(gss_cat$partyid)
+#| label: levels-partyid
 gss_cat |>
-  _______(tvhours) |>
-  _______(partyid = fct_collapse(partyid,
-                                conservative = c("Strong republican", 
+  drop_na(tvhours) |>
+  mutate(partyid = fct_collapse(partyid,
+                                Conservative = c("Strong republican", 
                                                  "Not str republican", 
                                                  "Ind,near rep"),
-                                liberal = c("Strong democrat", 
+                                Liberal = c("Strong democrat", 
                                             "Not str democrat", 
-                                            "Ind,near dem"))) |> 
-  ________(partyid) |>
-  ________(tv_avg = mean(tvhours)) |>
+                                            "Ind,near dem")) |>
+  fct_lump() ) |>
+  group_by(partyid) |>
+  summarise(tv_avg = mean(tvhours)) |>
   ggplot(aes(x = tv_avg, 
              y = fct_reorder(partyid, tv_avg))) +
   geom_point() + 
-  labs(y = "partyid")
+  labs(x = "Average Number of Hours of Tv Reported Watched",
+       y = "Political Party ID")
+#filled in the blanks, followed along with the video, added the standard, but aslo the fct_lump
 ```
 
 
